@@ -1,15 +1,17 @@
 import * as React from "react";
-import {Routes,Route,useNavigate,useLocation,Navigate,Outlet,} from "react-router-dom";
+import { Routes, Route, useNavigate, useLocation, Navigate, Outlet, } from "react-router-dom";
 import { fakeAuthProvider } from "./auth";
 import Axios from "axios"
 import { useEffect, useState } from "react";
+
+
 export default function App() {
   return (
-    
+
     <AuthProvider>
       <Routes>
-        <Route element={<Layout />}> 
-          <Route path="/login" element={<Login/>} />
+        <Route element={<Layout />}>
+          <Route path="/login" element={<Login />} />
           <Route
             path="/protected"
             element={
@@ -24,13 +26,14 @@ export default function App() {
   );
 }
 
-
+//createContext
 let DataContext = React.createContext([]);
 
 function useAuth() {
   return React.useContext(DataContext);
 }
 
+//หน้า Login
 function Login() {
   let navigate = useNavigate();
   let location = useLocation();
@@ -41,7 +44,7 @@ function Login() {
     event.preventDefault();
 
     let formData = new FormData(event.currentTarget);
-    let username = formData.get("username") 
+    let username = formData.get("username")
 
     auth.signin(username, () => {
       navigate(from, { replace: true });
@@ -51,13 +54,14 @@ function Login() {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-          Username: <input name="username" type="text" />
+        Username: <input name="username" type="text" />
         <button type="submit">Login</button>
       </form>
     </div>
   );
 }
 
+//หน้า Layout  
 function Layout() {
   return (
     <div>
@@ -67,8 +71,7 @@ function Layout() {
   );
 }
 
-
-
+//เชื่อม server
 function AuthProvider({ children }) {
   let [user, setUser] = React.useState(null);
 
@@ -88,10 +91,10 @@ function AuthProvider({ children }) {
   let value = { user, signin, signout };
 
   return <DataContext.Provider value={value}>{children}
-            </DataContext.Provider>;
+  </DataContext.Provider>;
 }
 
-
+//หน้า User
 function AuthStatus() {
   let auth = useAuth();
   let navigate = useNavigate();
@@ -124,19 +127,47 @@ function RequireAuth({ children }) {
   return children;
 }
 
-function Username() {
-useEffect(() => {
-  Axios.get('https://dog.ceo/api/breeds/image/random').then(response => {
-    setimgdog(response.data.message)
-    console.log(response.data.message)
-  })
-},[])
-  const [imgdog, setimgdog] = useState('');
 
-  
+// Add image และ Remove Image
+function Username() {
+  useEffect(()=>{
+    Axios.get('https://dog.ceo/api/breeds/image/random').then(response =>{
+      setImgdog(response.data.message)
+    })
+  },[])
+  const [imgDog, setImgdog] = useState('');
+
+  const [save,setSave] = useState([])
+  const saveimg = () => {
+    setSave([...save,imgDog])
+  }
+ console.log(save)
+
+  const [deletesave,setDeletesave] = useState([])
+  const deleteimg = () => {
+    save.splice(0,1)
+    console.log(save)
+    setDeletesave([...deletesave,imgDog])
+  }
+
+
   return <div>
-    <form>
-       <img src={imgdog}/>
-       </form>
-  </div>;
+ <img src={imgDog} />
+ <br></br>
+ <button onClick={saveimg}>ADD</button>
+ <br></br>
+ <br></br>
+
+ {save.map((todo,index)=>{
+    return <img src={todo}/>
+  })}
+ <button onClick={deleteimg}>DELETE</button>
+ 
+  </div>
 }
+
+
+
+
+
+
